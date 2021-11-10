@@ -49,10 +49,13 @@ public class VideoPlayerActivity extends AppCompatActivity implements View.OnCli
     //horizontal RecyclerView vars
     private ArrayList<IconModel> iconModelArrayList = new ArrayList<>();
     PlaybackIconsAdapter playbackIconsAdapter;
+    boolean expand = false;
+    boolean dark = false;
+    boolean mute = false;
     //horizontal RecyclerView vars
 
 
-    @SuppressLint("NotifyDataSetChanged")
+    @SuppressLint({"NotifyDataSetChanged", "Range"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,6 +87,62 @@ public class VideoPlayerActivity extends AppCompatActivity implements View.OnCli
         customViews.recyclerViewIcon.setAdapter(playbackIconsAdapter);
         playbackIconsAdapter.notifyDataSetChanged();
 
+        playbackIconsAdapter.setOnItemClickListener(position -> {
+            if (position == 0) {
+                Toast.makeText(VideoPlayerActivity.this, "First", Toast.LENGTH_SHORT).show();
+                if (expand) {
+                    iconModelArrayList.clear();
+                    iconModelArrayList.add(new IconModel(R.drawable.ic_right, ""));
+                    iconModelArrayList.add(new IconModel(R.drawable.ic_night_mode, "Night"));
+                    iconModelArrayList.add(new IconModel(R.drawable.ic_volume_off, "Mute"));
+                    iconModelArrayList.add(new IconModel(R.drawable.ic_rotate, "Rotate"));
+                    expand = false;
+                } else {
+                    if (iconModelArrayList.size() == 4) {
+                        iconModelArrayList.add(new IconModel(R.drawable.ic_volume_up, "Volume"));
+                        iconModelArrayList.add(new IconModel(R.drawable.ic_brigthness, "Brightness"));
+                        iconModelArrayList.add(new IconModel(R.drawable.ic_equalizer, "Equalizer"));
+                        iconModelArrayList.add(new IconModel(R.drawable.ic_speed, "Speed"));
+                        iconModelArrayList.add(new IconModel(R.drawable.ic_subtitle, "Subtitle"));
+                    }
+                    iconModelArrayList.set(position, new IconModel(R.drawable.ic_left, ""));
+                    expand = true;
+                }
+                playbackIconsAdapter.notifyDataSetChanged();
+            }
+            if (position == 1) {
+                Toast.makeText(VideoPlayerActivity.this, "Second", Toast.LENGTH_SHORT).show();
+                if (dark) {
+                    binding.nightMode.setVisibility(View.GONE);
+                    iconModelArrayList.set(position, new IconModel(R.drawable.ic_night_mode, "Night"));
+                    dark = false;
+                } else {
+                    binding.nightMode.setVisibility(View.VISIBLE);
+                    iconModelArrayList.set(position, new IconModel(R.drawable.ic_night_mode, "Day"));
+                    dark = true;
+                }
+                playbackIconsAdapter.notifyDataSetChanged();
+            }
+            if (position == 2) {
+                Toast.makeText(VideoPlayerActivity.this, "Third", Toast.LENGTH_SHORT).show();
+                if (mute) {
+                    player.setVolume(100);
+                    iconModelArrayList.set(position, new IconModel(R.drawable.ic_volume_up, "Mute"));
+                    mute = false;
+                } else {
+                    player.setVolume(0);
+                    iconModelArrayList.set(position, new IconModel(R.drawable.ic_volume_off, "UnMute"));
+                    mute = true;
+                }
+                playbackIconsAdapter.notifyDataSetChanged();
+            }
+            if (position == 3) {
+                Toast.makeText(VideoPlayerActivity.this, "fourth", Toast.LENGTH_SHORT).show();
+            }
+            if (position == 4) {
+                Toast.makeText(VideoPlayerActivity.this, "fifth", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         playVideo();
 

@@ -106,7 +106,7 @@ public class VideoFilesAdapter extends RecyclerView.Adapter<VideoFilesAdapter.Vi
                                     Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
                                     intent.setData(Uri.fromFile(newFile));
                                     context.sendBroadcast(intent);
-                                    notifyDataSetChanged();
+                                    VideoFilesAdapter.this.notifyDataSetChanged();
                                     Toast.makeText(context, "Video Renamed Successfully", Toast.LENGTH_SHORT).show();
                                     SystemClock.sleep(200);
                                     ((Activity) context).recreate();
@@ -150,8 +150,8 @@ public class VideoFilesAdapter extends RecyclerView.Adapter<VideoFilesAdapter.Vi
                             if (delete) {
                                 context.getContentResolver().delete(contentUri, null, null);
                                 videoList.remove(position);
-                                notifyItemRemoved(position);
-                                notifyItemRangeChanged(position, videoList.size());
+                                VideoFilesAdapter.this.notifyItemRemoved(position);
+                                VideoFilesAdapter.this.notifyItemRangeChanged(position, videoList.size());
                                 Toast.makeText(context, "Video Deleted Successfully!", Toast.LENGTH_SHORT).show();
                             } else {
                                 Toast.makeText(context, "Unable To Delete This Video!", Toast.LENGTH_SHORT).show();
