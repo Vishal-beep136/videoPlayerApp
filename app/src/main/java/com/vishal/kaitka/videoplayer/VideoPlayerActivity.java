@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.PlaybackException;
@@ -21,8 +22,10 @@ import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
+import com.vishal.kaitka.videoplayer.adapters.PlaybackIconsAdapter;
 import com.vishal.kaitka.videoplayer.databinding.ActivityVideoPlayerBinding;
 import com.vishal.kaitka.videoplayer.databinding.CustomPlaybackViewBinding;
+import com.vishal.kaitka.videoplayer.models.IconModel;
 import com.vishal.kaitka.videoplayer.models.MediaFiles;
 
 import java.io.File;
@@ -43,7 +46,13 @@ public class VideoPlayerActivity extends AppCompatActivity implements View.OnCli
     CustomPlaybackViewBinding customViews;
     ConcatenatingMediaSource concatenatingMediaSource;
 
+    //horizontal RecyclerView vars
+    private ArrayList<IconModel> iconModelArrayList = new ArrayList<>();
+    PlaybackIconsAdapter playbackIconsAdapter;
+    //horizontal RecyclerView vars
 
+
+    @SuppressLint("NotifyDataSetChanged")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,6 +72,17 @@ public class VideoPlayerActivity extends AppCompatActivity implements View.OnCli
         customViews.lock.setOnClickListener(this);
         customViews.unlock.setOnClickListener(this);
         customViews.scaling.setOnClickListener(firstListener);
+
+        iconModelArrayList.add(new IconModel(R.drawable.ic_right, ""));
+        iconModelArrayList.add(new IconModel(R.drawable.ic_night_mode, "Night"));
+        iconModelArrayList.add(new IconModel(R.drawable.ic_volume_off, "Mute"));
+        iconModelArrayList.add(new IconModel(R.drawable.ic_rotate, "Rotate"));
+        playbackIconsAdapter = new PlaybackIconsAdapter(iconModelArrayList, this);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this,
+                LinearLayoutManager.HORIZONTAL, true);
+        customViews.recyclerViewIcon.setLayoutManager(layoutManager);
+        customViews.recyclerViewIcon.setAdapter(playbackIconsAdapter);
+        playbackIconsAdapter.notifyDataSetChanged();
 
 
         playVideo();
@@ -197,7 +217,6 @@ public class VideoPlayerActivity extends AppCompatActivity implements View.OnCli
             customViews.scaling.setOnClickListener(secondListener);
         }
     };
-
     View.OnClickListener secondListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -209,7 +228,6 @@ public class VideoPlayerActivity extends AppCompatActivity implements View.OnCli
             customViews.scaling.setOnClickListener(thirdListener);
         }
     };
-
     View.OnClickListener thirdListener = view -> {
         binding.exoplayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT);
         player.setVideoScalingMode(C.VIDEO_SCALING_MODE_DEFAULT);
