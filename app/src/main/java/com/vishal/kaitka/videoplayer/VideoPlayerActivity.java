@@ -18,6 +18,7 @@ import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
+import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import com.vishal.kaitka.videoplayer.databinding.ActivityVideoPlayerBinding;
@@ -33,9 +34,15 @@ public class VideoPlayerActivity extends AppCompatActivity implements View.OnCli
     int position;
     String videoTitle;
     ArrayList<MediaFiles> mVideoFiles = new ArrayList<>();
+    private ControlsMode controlsMode;
+
+    public enum ControlsMode {
+        LOCK, FULLSCREEN;
+    }
 
     CustomPlaybackViewBinding customViews;
     ConcatenatingMediaSource concatenatingMediaSource;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +59,10 @@ public class VideoPlayerActivity extends AppCompatActivity implements View.OnCli
 
         customViews.exoPrev.setOnClickListener(this);
         customViews.exoNext.setOnClickListener(this);
+        customViews.videoBack.setOnClickListener(this);
+        customViews.lock.setOnClickListener(this);
+        customViews.unlock.setOnClickListener(this);
+        customViews.scaling.setOnClickListener(firstListener);
 
 
         playVideo();
@@ -86,7 +97,7 @@ public class VideoPlayerActivity extends AppCompatActivity implements View.OnCli
         player.addListener(new Player.Listener() {
             @Override
             public void onPlayerError(@NonNull PlaybackException error) {
-                Toast.makeText(VideoPlayerActivity.this, "Video Playing Error", Toast.LENGTH_SHORT).show();
+                Toast.makeText(VideoPlayerActivity.this, "Video Playing Error : " + error.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -134,6 +145,24 @@ public class VideoPlayerActivity extends AppCompatActivity implements View.OnCli
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
+            case R.id.videoBack:
+                if (player != null) {
+                    player.release();
+                }
+                finish();
+                break;
+            case R.id.lock:
+                controlsMode = ControlsMode.FULLSCREEN;
+                customViews.rootLayout.setVisibility(View.VISIBLE);
+                customViews.lock.setVisibility(View.INVISIBLE);
+                Toast.makeText(this, "Unlocked!", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.unlock:
+                controlsMode = ControlsMode.LOCK;
+                customViews.rootLayout.setVisibility(View.INVISIBLE);
+                customViews.lock.setVisibility(View.VISIBLE);
+                Toast.makeText(this, "Locked!", Toast.LENGTH_SHORT).show();
+                break;
             case R.id.exo_next:
                 try {
                     player.stop();
@@ -156,4 +185,38 @@ public class VideoPlayerActivity extends AppCompatActivity implements View.OnCli
 
         }
     }
+
+    View.OnClickListener firstListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            binding.exoplayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FILL);
+            player.setVideoScalingMode(C.VIDEO_SCALING_MODE_DEFAULT);
+            customViews.scaling.setImageResource(R.drawable.fullscreen);
+
+            Toast.makeText(VideoPlayerActivity.this, "Full Screen", Toast.LENGTH_SHORT).show();
+            customViews.scaling.setOnClickListener(secondListener);
+        }
+    };
+
+    View.OnClickListener secondListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            binding.exoplayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_ZOOM);
+            player.setVideoScalingMode(C.VIDEO_SCALING_MODE_DEFAULT);
+            customViews.scaling.setImageResource(R.drawable.zoom);
+
+            Toast.makeText(VideoPlayerActivity.this, "Zoom Screen", Toast.LENGTH_SHORT).show();
+            customViews.scaling.setOnClickListener(thirdListener);
+        }
+    };
+
+    View.OnClickListener thirdListener = view -> {
+        binding.exoplayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT);
+        player.setVideoScalingMode(C.VIDEO_SCALING_MODE_DEFAULT);
+        customViews.scaling.setImageResource(R.drawable.fit);
+        Toast.makeText(VideoPlayerActivity.this, "Fit Screen", Toast.LENGTH_SHORT).show();
+        customViews.scaling.setOnClickListener(firstListener);
+    };
+
+
 }
