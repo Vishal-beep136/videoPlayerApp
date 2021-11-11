@@ -4,20 +4,25 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.media.MediaMetadataRetriever;
 import android.media.audiofx.AudioEffect;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.PlaybackException;
+import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
@@ -58,6 +63,8 @@ public class VideoPlayerActivity extends AppCompatActivity implements View.OnCli
     boolean expand = false;
     boolean dark = false;
     boolean mute = false;
+    PlaybackParameters parameters;
+    float speed;
     //horizontal RecyclerView vars
 
 
@@ -74,6 +81,7 @@ public class VideoPlayerActivity extends AppCompatActivity implements View.OnCli
         videoTitle = getIntent().getStringExtra("videoTitle");
         mVideoFiles = getIntent().getExtras().getParcelableArrayList("videoArrayList");
         customViews.videoTitle.setText(videoTitle);
+        screenOrientation();
 
         customViews.exoPrev.setOnClickListener(this);
         customViews.exoNext.setOnClickListener(this);
@@ -170,6 +178,47 @@ public class VideoPlayerActivity extends AppCompatActivity implements View.OnCli
                 }
                 playbackIconsAdapter.notifyDataSetChanged();
             }
+            if (position == 7) {
+                AlertDialog.Builder speedDialog = new AlertDialog.Builder(this);
+                speedDialog.setTitle("Select Playback Speed")
+                        .setPositiveButton("Ok", null);
+                String[] speedsItem = {"0.5x", "1x Normal Speed", "1.25x", "1.5x", "2x"};
+                int checkedItem = -1;
+                speedDialog.setSingleChoiceItems(speedsItem, checkedItem, (dialogInterface, i) -> {
+                    switch (i) {
+                        case 0:
+                            speed = 0.5f;
+                            parameters = new PlaybackParameters(speed);
+                            player.setPlaybackParameters(parameters);
+                            break;
+                        case 1:
+                            speed = 1f;
+                            parameters = new PlaybackParameters(speed);
+                            player.setPlaybackParameters(parameters);
+                            break;
+                        case 2:
+                            speed = 1.25f;
+                            parameters = new PlaybackParameters(speed);
+                            player.setPlaybackParameters(parameters);
+                            break;
+                        case 3:
+                            speed = 1.5f;
+                            parameters = new PlaybackParameters(speed);
+                            player.setPlaybackParameters(parameters);
+                            break;
+                        case 4:
+                            speed = 2f;
+                            parameters = new PlaybackParameters(speed);
+                            player.setPlaybackParameters(parameters);
+                            break;
+                        default:
+                            break;
+                    }
+                });
+                speedDialog.create().show();
+
+            }
+
 
         });
 
@@ -194,11 +243,34 @@ public class VideoPlayerActivity extends AppCompatActivity implements View.OnCli
         }
         binding.exoplayerView.setPlayer(player);
         binding.exoplayerView.setKeepScreenOn(true);
+        player.setPlaybackParameters(parameters);
         player.prepare(concatenatingMediaSource);
         player.seekTo(position, C.TIME_UNSET);
         playError();
 
 
+    }
+
+    private void screenOrientation() {
+        try {
+            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+            Bitmap bitmap;
+            String path = mVideoFiles.get(position).getPath();
+            Uri uri = Uri.parse(path);
+            retriever.setDataSource(this, uri);
+            bitmap = retriever.getFrameAtTime();
+            int videoWidth = bitmap.getWidth();
+            int videoHeight = bitmap.getHeight();
+
+            if (videoWidth > videoHeight) {
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            } else {
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+            }
+
+        } catch (Exception e) {
+            Log.e("MediaMetadataRetriever", "screenOrientation: Error : " + e.getMessage());
+        }
     }
 
     private void playError() {
