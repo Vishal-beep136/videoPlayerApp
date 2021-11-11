@@ -1,4 +1,4 @@
-package com.vishal.kaitka.videoplayer;
+package com.vishal.kaitka.videoplayer.dialogs;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -15,6 +15,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
+
+import com.vishal.kaitka.videoplayer.R;
 
 /**
  * Created by Vishal on 10,November,2021

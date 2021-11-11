@@ -1,8 +1,10 @@
 package com.vishal.kaitka.videoplayer;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.media.audiofx.AudioEffect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -27,6 +29,8 @@ import com.google.android.exoplayer2.util.Util;
 import com.vishal.kaitka.videoplayer.adapters.PlaybackIconsAdapter;
 import com.vishal.kaitka.videoplayer.databinding.ActivityVideoPlayerBinding;
 import com.vishal.kaitka.videoplayer.databinding.CustomPlaybackViewBinding;
+import com.vishal.kaitka.videoplayer.dialogs.BrightnessDialog;
+import com.vishal.kaitka.videoplayer.dialogs.VolumeDialog;
 import com.vishal.kaitka.videoplayer.models.IconModel;
 import com.vishal.kaitka.videoplayer.models.MediaFiles;
 
@@ -153,7 +157,18 @@ public class VideoPlayerActivity extends AppCompatActivity implements View.OnCli
             }
 
             if (position == 5) {
-
+                BrightnessDialog brightnessDialog = new BrightnessDialog();
+                brightnessDialog.show(getSupportFragmentManager(), "dialog");
+                playbackIconsAdapter.notifyDataSetChanged();
+            }
+            if (position == 6) {
+                Intent intent = new Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL);
+                if ((intent.resolveActivity(getPackageManager()) != null)) {
+                    startActivityForResult(intent, 123);
+                } else {
+                    Toast.makeText(this, "No Equalizer Found", Toast.LENGTH_SHORT).show();
+                }
+                playbackIconsAdapter.notifyDataSetChanged();
             }
 
         });
