@@ -1,6 +1,8 @@
 package com.vishal.kaitka.videoplayer;
 
 import android.annotation.SuppressLint;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -89,7 +91,6 @@ public class VideoPlayerActivity extends AppCompatActivity implements View.OnCli
 
         playbackIconsAdapter.setOnItemClickListener(position -> {
             if (position == 0) {
-                Toast.makeText(VideoPlayerActivity.this, "First", Toast.LENGTH_SHORT).show();
                 if (expand) {
                     iconModelArrayList.clear();
                     iconModelArrayList.add(new IconModel(R.drawable.ic_right, ""));
@@ -111,7 +112,6 @@ public class VideoPlayerActivity extends AppCompatActivity implements View.OnCli
                 playbackIconsAdapter.notifyDataSetChanged();
             }
             if (position == 1) {
-                Toast.makeText(VideoPlayerActivity.this, "Second", Toast.LENGTH_SHORT).show();
                 if (dark) {
                     binding.nightMode.setVisibility(View.GONE);
                     iconModelArrayList.set(position, new IconModel(R.drawable.ic_night_mode, "Night"));
@@ -124,7 +124,6 @@ public class VideoPlayerActivity extends AppCompatActivity implements View.OnCli
                 playbackIconsAdapter.notifyDataSetChanged();
             }
             if (position == 2) {
-                Toast.makeText(VideoPlayerActivity.this, "Third", Toast.LENGTH_SHORT).show();
                 if (mute) {
                     player.setVolume(100);
                     iconModelArrayList.set(position, new IconModel(R.drawable.ic_volume_up, "Mute"));
@@ -136,12 +135,27 @@ public class VideoPlayerActivity extends AppCompatActivity implements View.OnCli
                 }
                 playbackIconsAdapter.notifyDataSetChanged();
             }
+
             if (position == 3) {
-                Toast.makeText(VideoPlayerActivity.this, "fourth", Toast.LENGTH_SHORT).show();
+                if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                    playbackIconsAdapter.notifyDataSetChanged();
+                } else if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+                    playbackIconsAdapter.notifyDataSetChanged();
+                }
             }
+
             if (position == 4) {
-                Toast.makeText(VideoPlayerActivity.this, "fifth", Toast.LENGTH_SHORT).show();
+                VolumeDialog volumeDialog = new VolumeDialog();
+                volumeDialog.show(getSupportFragmentManager(), "dialog");
+                playbackIconsAdapter.notifyDataSetChanged();
             }
+
+            if (position == 5) {
+
+            }
+
         });
 
         playVideo();
